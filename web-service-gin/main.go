@@ -21,7 +21,47 @@ var albums = []album{
 }
 
 func getAlbums(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, albums)
+	var err error
+	var foundAlbums []album
+	var minPrice, maxPrice float64 = 0, 1000000
+
+	minStr := c.Query("min")
+	if minStr != "" {
+		minPrice, err = strconv.ParseFloat(minStr, 64)
+	}
+
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"message": "internal server error occured",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	maxStr := c.Query("max")
+	if maxStr != "" {
+		maxPrice, err = strconv.ParseFloat(maxStr, 64)
+	}
+
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"message": "internal server error occured",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	for _, album := range albums {
+		if album.Price <= maxPrice && album.Price >= minPrice {
+			foundAlbums = append(foundAlbums, album)
+		}
+	}
+
+	if len(foundAlbums) == 0 {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "no album found with the given min-max range"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, foundAlbums)
 }
 
 func postAlbums(c *gin.Context) {
@@ -48,36 +88,16 @@ func getAlbumByID(c *gin.Context) {
 
 }
 
-func getAlbumWithinPriceRange(c * gin.Context) []album {
-	min, err := strconv.ParseFloat(c.Query("min"), 64)
-	if err != nil {
-		min = 0
-	}
-	max, err := strconv.ParseFloat(c.Query("max"), 64)
-	if err != nil {
-		max = 10000
-	}
-
-	var foundAlbums []album
-
-	for _, album := range albums {
-		if album.Price < max && album.Price > min {
-			foundAlbums = append(foundAlbums, album)
-		}
-	}
-	return foundAlbums;
-}
-
 func getAlbumByTitle(c *gin.Context) {
 	title := c.Param("title")
 
 	for _, album := range albums {
-		if album.Title == title{
+		if album.Title == title {
 			c.IndentedJSON(http.StatusOK, album)
 			return
 		}
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message" : "album not found"})
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
 }
 
 func main() {
