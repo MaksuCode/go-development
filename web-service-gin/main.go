@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,9 +38,9 @@ func postAlbums(c *gin.Context) {
 func getAlbumByID(c *gin.Context) {
 	id := c.Param("id")
 
-	for _, a := range albums {
-		if a.ID == id {
-			c.IndentedJSON(http.StatusOK, a)
+	for _, album := range albums {
+		if album.ID == id {
+			c.IndentedJSON(http.StatusOK, album)
 			return
 		}
 	}
@@ -47,10 +48,43 @@ func getAlbumByID(c *gin.Context) {
 
 }
 
+func getAlbumWithinPriceRange(c * gin.Context) []album {
+	min, err := strconv.ParseFloat(c.Query("min"), 64)
+	if err != nil {
+		min = 0
+	}
+	max, err := strconv.ParseFloat(c.Query("max"), 64)
+	if err != nil {
+		max = 10000
+	}
+
+	var foundAlbums []album
+
+	for _, album := range albums {
+		if album.Price < max && album.Price > min {
+			foundAlbums = append(foundAlbums, album)
+		}
+	}
+	return foundAlbums;
+}
+
+func getAlbumByTitle(c *gin.Context) {
+	title := c.Param("title")
+
+	for _, album := range albums {
+		if album.Title == title{
+			c.IndentedJSON(http.StatusOK, album)
+			return
+		}
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message" : "album not found"})
+}
+
 func main() {
 	router := gin.Default()
 	router.GET("/albums", getAlbums)
-	router.GET("/albums/:id", getAlbumByID)
+	router.GET("/albums/id/:id", getAlbumByID)
+	router.GET("/albums/title/:title", getAlbumByTitle)
 	router.POST("/albums", postAlbums)
 
 	router.Run("localhost:8000")
