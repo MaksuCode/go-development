@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"net/http"
 	"strconv"
 
@@ -21,32 +22,37 @@ var albums = []album{
 }
 
 func getAlbums(c *gin.Context) {
-	var err error
 	var foundAlbums []album
-	var minPrice, maxPrice float64 = 0, 1000000
+	minPrice := 0.0
+	maxPrice := math.MaxFloat64
 
-	minStr := c.Query("min")
-	if minStr != "" {
-		minPrice, err = strconv.ParseFloat(minStr, 64)
+	if minStr := c.Query("min"); minStr != "" {
+		if val, err := strconv.ParseFloat(minStr, 64); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{
+				"message": "invalid min price",
+				"error":   err.Error(),
+			})
+			return
+		} else {
+			minPrice = val
+		}
 	}
 
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"message": "internal server error occured",
-			"error":   err.Error(),
-		})
-		return
+	if maxStr := c.Query("max"); maxStr != "" {
+		if val, err := strconv.ParseFloat(maxStr, 64); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{
+				"message": "invalid max price",
+				"error":   err.Error(),
+			})
+			return
+		} else {
+			maxPrice = val
+		}
 	}
 
-	maxStr := c.Query("max")
-	if maxStr != "" {
-		maxPrice, err = strconv.ParseFloat(maxStr, 64)
-	}
-
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"message": "internal server error occured",
-			"error":   err.Error(),
+	if minPrice > maxPrice {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"message": "min price can not be bigger than max price",
 		})
 		return
 	}
