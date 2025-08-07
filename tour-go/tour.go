@@ -21,12 +21,24 @@ func main() {
 
 	fmt.Println(Split(17))
 
+	// Zero values
 	PrintZeroValues()
 
 	// Type Conversions
 	z := Pythagorean(3, 4)
-
 	fmt.Println(z)
+
+	var1 := 1
+	var2 := 3.142
+	var3 := 0.867 + 0.5i
+
+	fmt.Printf("Types of vars %T , %T and %T\n", var1, var2, var3)
+
+	// Constant
+	// Can not be declated with ":=" syntax
+	const lang = "Go"
+	const truth = true
+	fmt.Printf("%v rules? %v\n", lang, truth)
 
 }
 
