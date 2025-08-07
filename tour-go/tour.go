@@ -5,10 +5,6 @@ import (
 	"math"
 )
 
-// ! I stopped at "Type Conversions 13/17 : https://go.dev/tour/basics/13"
-// * Variables can be declared in blocks
-// * When variables are declared without an initial value, a zero value is given
-
 func main() {
 
 	fmt.Println(math.Pi)
