@@ -77,3 +77,49 @@ func Pythagorean(x, y int) uint {
 	var z uint = uint(f)
 	return z
 }
+
+/*
+		Simple For loop example
+	    the init statement: executed before the first iteration
+		the condition expression: evaluated before every iteration
+		the post statement: executed at the end of every iteration
+*/
+func CountFromZero(limit int) int {
+	sum := 0
+	for i := 0; i < limit; i++ {
+		sum += i
+	}
+	return sum
+}
+
+/*
+Foor loop with range
+
+	If you do not need to use the init value in the loop, you can simply add a "_"
+*/
+func CountNumbers(numbers []int) int {
+	sum := 0
+	for _, value := range numbers {
+		sum += value
+	}
+	return sum
+}
+
+/*
+Init and Post statements are optional. This now looks like a while loop in another languages.
+
+	In Go we do not have a while loop. For is the only loop
+*/
+func WhileLoop() int {
+	sum := 1
+	for sum < 1000 {
+		sum += sum
+	}
+	return sum
+}
+
+func ForeverLoop() {
+	for {
+		fmt.Println("This will run forever..")
+	}
+}
